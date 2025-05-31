@@ -94,15 +94,15 @@ noise_files = {
     # 'munching': './MS-SNSD/noise_train/Munching_8.wav',
     'airportAnnouncement': './dataset/noises/AirportAnnouncements_7.wav',
     'babble': './dataset/noises/Babble_2.wav',
-    'train_coming': './dataset/noises/Station_1.wav',
+    'train_coming': './dataset/noises/TrainComing_1.wav',
     'white_noise': './dataset/noises/white_noise_1.wav',
     # Add more types here...
 }
 
-speech_files = {'./MS-SNSD/clean_train/p234_003.wav', './MS-SNSD/clean_train/p234_321.wav',
-                './MS-SNSD/clean_train/p237_073.wav', './MS-SNSD/clean_train/p237_198.wav',
-                './MS-SNSD/clean_train/p241_017.wav', './MS-SNSD/clean_train/p241_185.wav',
-                './MS-SNSD/clean_train/p245_132.wav', './MS-SNSD/clean_train/p245_200.wav'}
+speech_files = {'./dataset/clean_train/p234_003.wav', './dataset/clean_train/p234_321.wav',
+                './dataset/clean_train/p237_073.wav', './dataset/clean_train/p237_198.wav',
+                './dataset/clean_train/p241_017.wav', './dataset/clean_train/p241_185.wav',
+                './dataset/clean_train/p245_132.wav', './dataset/clean_train/p245_200.wav'}
 
 # Base output folder
 base_output_folder = './degraded_speeches'

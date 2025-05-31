@@ -5,5 +5,5 @@ numpy==1.26.4
 pandas==2.2.3
 pesq==0.0.4
 pystoi==0.4.1
-scipy==1.15.3
+scipy==1.11.4
 soundfile==0.13.1
