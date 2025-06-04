@@ -59,26 +59,34 @@ def reconstruct_clean_speeches(speech_files,
                                                  clean_id)
 
         # Save MSE
-        mse = np.mean((speech - reconstructed) ** 2)
-        with open(os.path.join(output_subfolder, 'mse.txt'), 'w') as f:
-            f.write(f"Mean Squared Error (MSE): {mse:.6f}\n")
+        # mse = np.mean((speech - reconstructed) ** 2)
+        # with open(os.path.join(output_subfolder, 'mse.txt'), 'w') as f:
+        #     f.write(f"Mean Squared Error (MSE): {mse:.6f}\n")
 
         # Save plots
         kernel_analyzer.save_plots(speech, reconstructed, output_subfolder)
-        print(f"Done: {clean_id} — MSE: {mse:.6f}")
 
 
-# --- Your speech files
-speech_files = {
-    './clean_speeches/p234_003.wav',
-    './clean_speeches/p234_321.wav',
-    './clean_speeches/p237_073.wav',
-    './clean_speeches/p237_198.wav',
-    './clean_speeches/p241_017.wav',
-    './clean_speeches/p241_185.wav',
-    './clean_speeches/p245_132.wav',
-    './clean_speeches/p245_200.wav',
-}
+# List of all file IDs (both men and women, each with 2 utterances)
+all_speech_ids = [
+    "p237_073", "p237_198", "p241_017", "p241_185", "p245_132", "p245_200", "p246_020", "p246_032",
+    "p247_004", "p247_010", "p251_015", "p251_038", "p260_005", "p260_042", "p263_013", "p263_014",
+    "p271_009", "p271_143", "p272_011", "p272_330", "p275_034", "p275_036", "p281_079", "p281_085",
+    "p284_016", "p284_184", "p285_060", "p285_080", "p292_057", "p292_058", "p298_027", "p298_028",
+    "p302_135", "p302_244", "p304_081", "p304_082", "p316_122", "p316_128", "p326_037", "p326_039",
+    "p334_054", "p334_210", "p345_249", "p345_385", "p347_102", "p347_115", "p360_160", "p360_188",
+    "p363_268", "p363_422",
+    "p234_003", "p234_321", "p248_142", "p248_306", "p249_035", "p249_241", "p255_078", "p255_125",
+    "p264_012", "p264_018", "p265_031", "p265_029", "p266_001", "p266_002", "p283_025", "p283_033",
+    "p293_007", "p293_123", "p295_030", "p295_040", "p299_074", "p299_086", "p301_118", "p301_130",
+    "p303_050", "p303_055", "p305_175", "p305_176", "p306_109", "p306_110", "p307_076", "p307_077",
+    "p308_154", "p308_155", "p310_068", "p310_212", "p312_134", "p312_205", "p313_124", "p313_131",
+    "p314_164", "p314_166", "p323_083", "p323_084", "p333_072", "p333_075", "p335_121", "p335_256",
+    "p336_223", "p336_344"
+]
+
+# Set of full file paths assuming they are in ./dataset/clean_train/
+speech_files = {f"./dataset/clean_train/{sid}.wav" for sid in all_speech_ids}
 
 # --- Run it
 reconstruct_clean_speeches(speech_files)
