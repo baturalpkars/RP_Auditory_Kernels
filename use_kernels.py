@@ -1,54 +1,10 @@
 import os
-from collections import Counter
 import numpy as np
 import pickle
 import librosa
 import soundfile as sf
-import matplotlib.pyplot as plt
 import kernel_analyzer
 from ExampleEncodingDecoding import mp_utils as mp
-
-
-# def analyze_encoded_waveform(encoded_waveform, speech, signal_length, norm_list, sr=16000,
-#                              output_folder='./output_analysis', clean_id=""):
-#     os.makedirs(output_folder, exist_ok=True)  # Ensure directory exists
-#
-#     # Bar plot
-#     kernel_indices = [entry[0] for entry in encoded_waveform]
-#     kernel_counts = Counter(kernel_indices)
-#
-#     plt.figure(figsize=(10, 4))
-#     plt.bar(kernel_counts.keys(), kernel_counts.values())
-#     plt.title("Kernel Usage Frequency")
-#     plt.xlabel("Kernel Index")
-#     plt.ylabel("Count")
-#     plt.tight_layout()
-#     plt.savefig(os.path.join(output_folder, f'{clean_id}_bar_plot.png'))
-#     plt.close()
-#
-#     # Amplitude distribution
-#     amps = [abs(entry[1]) for entry in encoded_waveform]
-#     plt.figure(figsize=(8, 3))
-#     plt.hist(amps, bins=50)
-#     plt.title("Distribution of Amplitudes of Selected Kernels")
-#     plt.xlabel("Amplitude")
-#     plt.ylabel("Frequency")
-#     plt.tight_layout()
-#     plt.savefig(os.path.join(output_folder, f'{clean_id}_amp_dist.png'))
-#     plt.close()
-#
-#     # SRR vs Kernels/Second
-#     SRR_ld = 20 * np.log10(np.linalg.norm(speech) / norm_list)
-#     plt.figure(figsize=(8, 3))
-#     plt.plot(np.linspace(1, len(norm_list) / signal_length * sr, len(norm_list)), SRR_ld)
-#     plt.title("Number of kernels/second vs the SRR")
-#     plt.legend(["Learned"])
-#     plt.xlabel("kernels/second")
-#     plt.ylabel("SRR [dB]")
-#     plt.grid()
-#     plt.tight_layout()
-#     plt.savefig(os.path.join(output_folder, f'{clean_id}_srr_kernels.png'))
-#     plt.close()
 
 
 def use_kernels_once(KERNEL_PATH='./ExampleEncodingDecoding/kernels_15040.jld2',
