@@ -100,9 +100,9 @@ def use_kernels(KERNEL_PATH='./ExampleEncodingDecoding/kernels_15040.jld2',
             # print(f"Saved reconstructed speech to {reconstructed_path}")
 
             # Save MSE
-            # mse = np.mean((speech - reconstructed_speech) ** 2)
-            # with open(os.path.join(output_subfolder, 'mse.txt'), 'w') as f:
-            #     f.write(f"Mean Squared Error (MSE): {mse:.6f}\n")
+            mse = np.mean((speech - reconstructed_speech) ** 2)
+            with open(os.path.join(output_subfolder, 'mse.txt'), 'w') as f:
+                f.write(f"Mean Squared Error (MSE): {mse:.6f}\n")
 
             # # # Save encoded waveforms to use later!
             # Save encoded waveform
