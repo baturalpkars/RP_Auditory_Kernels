@@ -63,6 +63,10 @@ def use_kernels(KERNEL_PATH='./ExampleEncodingDecoding/kernels_15040.jld2',
 
     # Traverse each subfolder in degraded_speeches/
     for speaker_id in os.listdir(DEGRADED_FOLDER):
+        if speaker_id in processed_ids:
+            print(f"Skipping {speaker_id}, already processed.")
+            continue
+
         speaker_path = os.path.join(DEGRADED_FOLDER, speaker_id)
         if not os.path.isdir(speaker_path):
             continue  # skip non-directories
@@ -71,11 +75,6 @@ def use_kernels(KERNEL_PATH='./ExampleEncodingDecoding/kernels_15040.jld2',
         for degraded_file in os.listdir(speaker_path):
             if not degraded_file.endswith('.wav'):
                 continue
-
-            clean_id = os.path.splitext(degraded_file)[0]
-            if clean_id in processed_ids:
-                print(f"Skipping {clean_id}, already processed.")
-                continue  # Skip processed files
 
             degraded_path = os.path.join(speaker_path, degraded_file)
 
@@ -91,6 +90,7 @@ def use_kernels(KERNEL_PATH='./ExampleEncodingDecoding/kernels_15040.jld2',
             print(f"Finished matching pursuit on {degraded_file}.")
 
             # Create output folder for this file
+            clean_id = os.path.splitext(degraded_file)[0]
             output_subfolder = os.path.join(OUTPUT_FOLDER, speaker_id, clean_id)
             os.makedirs(output_subfolder, exist_ok=True)
 
