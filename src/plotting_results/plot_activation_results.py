@@ -7,11 +7,11 @@ import matplotlib.pyplot as plt
 # === CONFIGURATION ===
 RECON_SPEECH_DIR = "../../reconstructed_speeches"
 RECON_NOISE_DIR = "../../reconstructed_noises"
-OUTPUT_DIR = "../../plots/avg_kernel_diff_plots"
+OUTPUT_DIR = "../../results/plots/avg_kernel_diff_plots"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 NOISE_TYPES = ["babble", "train_coming", "white_noise", "airportAnnouncement"]
-TARGET_SNR = "-5"
+TARGET_SNR = "10"
 
 
 # === Utility to load kernel histogram from encoded_waveform.pkl
@@ -95,7 +95,7 @@ for noise_type in NOISE_TYPES:
     # === Subtract noise from average speech
     all_kernels.update(noise_hist.keys())
     diff_hist = {
-        k: noise_hist.get(k, 0) - avg_speech_hist.get(k, 0)
+        k:  avg_speech_hist.get(k, 0) - noise_hist.get(k, 0)
         for k in all_kernels
     }
 

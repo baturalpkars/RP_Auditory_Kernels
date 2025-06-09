@@ -20,7 +20,7 @@ comparison_colors = {
 }
 noise_types = ["babble", "train_coming", "white_noise", "airportAnnouncement"]
 snr_levels = ["-5", "0", "5", "10"]
-output_dir = "../../plots/metric_avg_graphs"
+output_dir = "../../results/plots/metric_avg_graphs"
 os.makedirs(output_dir, exist_ok=True)
 
 

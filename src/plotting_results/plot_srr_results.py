@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 # === CONFIGURATION ===
 RECON_DIR = "../../reconstructed_speeches"
 ORIG_WAV_DIR = "../../degraded_speeches"
-OUTPUT_PLOT_DIR = "../../plots/srr_plots"
+OUTPUT_PLOT_DIR = "../../results/plots/srr_plots"
 os.makedirs(OUTPUT_PLOT_DIR, exist_ok=True)
 
 SNR_LEVELS = ["-5", "0", "5", "10"]
