@@ -7,9 +7,9 @@ import kernel_analyzer
 from ExampleEncodingDecoding import mp_utils as mp
 
 
-def use_kernels(KERNEL_PATH='./ExampleEncodingDecoding/kernels_15040.jld2',
-                NOISES='./dataset/noises',
-                OUTPUT_FOLDER='./reconstructed_noises',
+def use_kernels(KERNEL_PATH='../ExampleEncodingDecoding/kernels_15040.jld2',
+                NOISES='../dataset/noises',
+                OUTPUT_FOLDER='../reconstructed_noises',
                 STOP_TYPE='amplitude', STOP_CONDITION=0.1):
 
     # Load the learned kernels (dictionary)

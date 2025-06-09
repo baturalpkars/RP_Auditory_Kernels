@@ -77,7 +77,7 @@ def generate_white_noise(duration=10.0, sample_rate=16000):
     white_noise = np.random.normal(0, 1, int(sample_rate * duration))
 
     # Save as WAV if needed
-    sf.write("dataset/noises/white_noise_1.wav", white_noise, sample_rate)
+    sf.write("../dataset/noises/white_noise_1.wav", white_noise, sample_rate)
 
 
 def normalize_to_target_rms(signal, target_rms=0.1):

@@ -9,7 +9,7 @@ from ExampleEncodingDecoding import mp_utils as mp
 
 
 def analyze_encoded_waveform(encoded_waveform, speech, signal_length, norm_list, sr=16000,
-                             output_folder='./output_analysis', clean_id=""):
+                             output_folder='../output_analysis', clean_id=""):
     os.makedirs(output_folder, exist_ok=True)  # Ensure directory exists
 
     # Bar plot

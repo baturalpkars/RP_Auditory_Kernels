@@ -3,46 +3,13 @@ import numpy as np
 import pickle
 import librosa
 import soundfile as sf
-import kernel_analyzer
+from src import kernel_analyzer
 from ExampleEncodingDecoding import mp_utils as mp
 
 
-def use_kernels_once(KERNEL_PATH='./ExampleEncodingDecoding/kernels_15040.jld2',
-                     SPEECH_PATH='./degraded_speeches/p245_132/p245_132_airConditioner_0dB.wav',
-                     OUTPUT_RECONSTRUCTED_PATH='./output_reconstructed.wav', STOP_TYPE='amplitude',
-                     STOP_CONDITION=0.1):
-    # Load the learned kernels (dictionary)
-    dictionary = mp.create_dictionary_from_JLD2(KERNEL_PATH)
-    print(f"Loaded {len(dictionary)} kernels.")
-
-    # Load the speech file
-    speech, sr = librosa.load(SPEECH_PATH, sr=None)
-
-    # Apply Matching Pursuit Encoding
-    print("Running matching pursuit. This might take a while...")
-    encoded_waveform, residual = mp.matching_pursuit(dictionary, speech,
-                                                     stop_type=STOP_TYPE, stop_condition=STOP_CONDITION)
-    print("Running matching pursuit finished.")
-
-    # Reconstruct Speech
-    reconstructed_speech, norm_list = mp.reconstruct_and_get_norm(dictionary, encoded_waveform, speech)
-
-    # Save the reconstructed speech
-    sf.write(OUTPUT_RECONSTRUCTED_PATH, reconstructed_speech, sr)
-    print(f"Saved reconstructed speech to {OUTPUT_RECONSTRUCTED_PATH}")
-
-    kernel_analyzer.analyze_encoded_waveform(encoded_waveform, speech, len(speech), norm_list, sr, './output_analysis')
-
-    # Calculate Reconstruction Quality
-    mse = np.mean((speech - reconstructed_speech) ** 2)
-    print(f"Mean Squared Error (MSE) between original and reconstructed: {mse:.6f}")
-
-    return reconstructed_speech
-
-
-def use_kernels(KERNEL_PATH='./ExampleEncodingDecoding/kernels_15040.jld2',
-                DEGRADED_FOLDER='./degraded_speeches',
-                OUTPUT_FOLDER='./reconstructed_speeches', STOP_TYPE='amplitude', STOP_CONDITION=0.1):
+def use_kernels(KERNEL_PATH='../ExampleEncodingDecoding/kernels_15040.jld2',
+                DEGRADED_FOLDER='../degraded_speeches',
+                OUTPUT_FOLDER='../reconstructed_speeches', STOP_TYPE='amplitude', STOP_CONDITION=0.1):
     # Load the learned kernels (dictionary)
     dictionary = mp.create_dictionary_from_JLD2(KERNEL_PATH)
 
@@ -127,4 +94,3 @@ def use_kernels(KERNEL_PATH='./ExampleEncodingDecoding/kernels_15040.jld2',
 
 # This script provides functions to use learned kernels for speech reconstruction.
 use_kernels()
-# use_kernels_once()

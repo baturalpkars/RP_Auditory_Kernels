@@ -1,17 +1,15 @@
 import os
-from collections import Counter
 import kernel_analyzer
 import pickle
 import librosa
 import numpy as np
 import soundfile as sf
-import matplotlib.pyplot as plt
 from ExampleEncodingDecoding import mp_utils as mp
 
 
 def reconstruct_clean_speeches(speech_files,
-                               KERNEL_PATH='./ExampleEncodingDecoding/kernels_15040.jld2',
-                               OUTPUT_FOLDER='./reconstructed_clean_speeches',
+                               KERNEL_PATH='../ExampleEncodingDecoding/kernels_15040.jld2',
+                               OUTPUT_FOLDER='../reconstructed_clean_speeches',
                                STOP_TYPE='amplitude',
                                STOP_CONDITION=0.1):
     # Load dictionary
