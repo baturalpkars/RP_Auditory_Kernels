@@ -28,26 +28,14 @@ def use_kernels(KERNEL_PATH='./ExampleEncodingDecoding/kernels_15040.jld2',
         # Load full noise
         noise, sr = librosa.load(noise_path, sr=None)
 
-        # Trim to most energetic 2 seconds
-        window_duration = 2.0
-        window_length = int(sr * window_duration)
-        hop_length = int(sr * 1.0)
-
-        max_rms = -np.inf
-        best_segment = None
-
-        for start in range(0, len(noise) - window_length + 1, hop_length):
-            segment = noise[start:start + window_length]
-            rms = np.sqrt(np.mean(segment ** 2))
-            if rms > max_rms:
-                max_rms = rms
-                best_segment = segment
-
-        if best_segment is None:
-            print(f"Skipping {noise_file} — too short or empty.")
+        # Take the first 6 seconds
+        duration_sec = 6.0
+        end_sample = int(sr * duration_sec)
+        if len(noise) < end_sample:
+            print(f"Skipping {noise_file} — shorter than 6 seconds.")
             continue
 
-        sliced_noise = best_segment
+        sliced_noise = noise[:end_sample]
 
         print(f"Running matching pursuit on {noise_file}...")
 
