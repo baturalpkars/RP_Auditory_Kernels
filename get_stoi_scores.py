@@ -1,4 +1,4 @@
-from metrics import SNRMetric, PESQMetric, ViSQOLMetric, STIOMetric
+from metrics import STIOMetric
 from speech_analyzer import AudioQualityAnalyzer
 
 analyzer = AudioQualityAnalyzer(
@@ -8,9 +8,6 @@ analyzer = AudioQualityAnalyzer(
     reconstructed_degraded_dir='reconstructed_speeches'
 )
 
-# analyzer.add_metric(SNRMetric())
-# analyzer.add_metric(PESQMetric())
-# analyzer.add_metric(ViSQOLMetric())
 analyzer.add_metric(STIOMetric())
 
 analyzer.analyze()
