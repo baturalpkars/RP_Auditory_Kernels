@@ -99,11 +99,6 @@ noise_files = {
     # Add more types here...
 }
 
-# speech_files = {'./dataset/clean_train/p234_003.wav', './dataset/clean_train/p234_321.wav',
-#                 './dataset/clean_train/p237_073.wav', './dataset/clean_train/p237_198.wav',
-#                 './dataset/clean_train/p241_017.wav', './dataset/clean_train/p241_185.wav',
-#                 './dataset/clean_train/p245_132.wav', './dataset/clean_train/p245_200.wav'}
-
 # List of all file IDs (both men and women, each with 2 utterances)
 all_speech_ids = [
     "p237_073", "p237_198", "p241_017", "p241_185", "p245_132", "p245_200", "p246_020", "p246_032",

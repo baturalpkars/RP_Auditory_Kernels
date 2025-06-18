@@ -16,6 +16,7 @@ class AudioQualityAnalyzer:
     def add_metric(self, metric: MetricStrategy):
         self.metrics.append(metric)
 
+    # This method analyzes the audio files in the specified directories with the given metrics.
     def analyze(self):
         for clean_id in os.listdir(self.reconstructed_degraded_dir):
             if clean_id.startswith('.'):  # Skip hidden files like .DS_Store

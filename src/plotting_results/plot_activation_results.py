@@ -11,7 +11,7 @@ OUTPUT_DIR = "../../results/plots/avg_kernel_diff_plots"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 NOISE_TYPES = ["babble", "train_coming", "white_noise", "airportAnnouncement"]
-TARGET_SNR = "-5"
+TARGET_SNR = "10" # You can change it to any SNR level you want to analyze (-5, 0, 5, 10)
 
 
 # === NORMALIZATION FUNCTIONS ===
@@ -117,7 +117,7 @@ for noise_type in NOISE_TYPES:
         for k in all_kernels
     }
 
-    # === Optional: Focus on top differences for cleaner plots
+    # Focus on top differences for cleaner plots
     # Get kernels with largest absolute differences
     significant_diffs = {k: v for k, v in diff_hist.items() if abs(v) > 0.001}  # 0.1% threshold
 
@@ -126,21 +126,23 @@ for noise_type in NOISE_TYPES:
         continue
 
     # === Create clean single plot
-    plt.figure(figsize=(12, 6))
-
+    fig, ax = plt.subplots(figsize=(7.5, 4.5))
     kernels = list(significant_diffs.keys())
     values = list(significant_diffs.values())
     colors = ['green' if v > 0 else 'red' for v in values]
 
-    plt.bar(kernels, values, color=colors, alpha=0.7)
-    plt.axhline(0, color='black', linewidth=0.8)
-    plt.title(
-        f"Normalized Kernel Usage Difference (Speech - Noise)\n{noise_type} @ {TARGET_SNR}dB | Green: Speech-preferred, Red: Noise-preferred")
-    plt.xlabel("Kernel Index")
-    plt.ylabel("Proportion Difference")
-    plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    plt.savefig(os.path.join(OUTPUT_DIR, f"{noise_type}_normalized_diff_{TARGET_SNR}dB.png"), dpi=150)
+    ax.bar(kernels, values, color=colors, alpha=0.7)
+    ax.axhline(0, color='black', linewidth=0.8)
+    ax.set_title(
+        f"Normalized Kernel Usage Difference (Speech - Noise)\n{noise_type} @ {TARGET_SNR}dB",
+        fontsize=13
+    )
+    ax.set_xlabel("Kernel Index", fontsize=12)
+    ax.set_ylabel("Proportion Difference", fontsize=12)
+    ax.tick_params(axis='both', labelsize=11)
+    ax.grid(True, alpha=0.4)
+    fig.tight_layout()
+    fig.savefig(os.path.join(OUTPUT_DIR, f"{noise_type}_normalized_diff_{TARGET_SNR}dB.pdf"), format='pdf')
     plt.close()
 
     # === Print summary statistics

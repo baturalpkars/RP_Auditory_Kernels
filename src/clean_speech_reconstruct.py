@@ -46,17 +46,10 @@ def reconstruct_clean_speeches(speech_files,
         # Save norm list
         np.save(os.path.join(output_subfolder, 'norm_list.npy'), norm_list)
 
-        # To use saved files.
-        # with open(os.path.join(output_subfolder, 'encoded_waveform.pkl'), 'rb') as f:
-        #     encoded_waveform = pickle.load(f)
-        #
-        # # Load norm list
-        # norm_list = np.load(os.path.join(output_subfolder, 'norm_list.npy'))
-
         kernel_analyzer.analyze_encoded_waveform(encoded_waveform, speech, len(speech), norm_list, sr, output_subfolder,
                                                  clean_id)
 
-        # Save MSE
+        # Save MSE if needed or curious
         # mse = np.mean((speech - reconstructed) ** 2)
         # with open(os.path.join(output_subfolder, 'mse.txt'), 'w') as f:
         #     f.write(f"Mean Squared Error (MSE): {mse:.6f}\n")

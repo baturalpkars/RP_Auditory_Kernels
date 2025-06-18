@@ -83,34 +83,32 @@ for speaker_id in os.listdir(RECON_DIR):
             print(f"❌ Error processing {sample_folder}: {e}")
 
 # === Plotting ===
-# === Plotting ===
 for noise in NOISE_TYPES:
-    plt.figure(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(8.5, 5.5))
     for snr in SNR_LEVELS:
         srr_curves = data[noise][snr]
         x_curves = kernel_axes[noise][snr]
         if not srr_curves or not x_curves:
             continue
 
-        # Find min length to align curves
         min_len = min(len(c) for c in srr_curves)
-
-        # Truncate all curves to min_len
         srr_trunc = [c[:min_len] for c in srr_curves]
         x_trunc = [x[:min_len] for x in x_curves]
 
         avg_srr = np.mean(srr_trunc, axis=0)
         avg_x = np.mean(x_trunc, axis=0)
 
-        plt.plot(avg_x, avg_srr, label=f"{snr} dB")
+        ax.plot(avg_x, avg_srr, label=f"{snr} dB", linewidth=2)
 
-    plt.title(f"SRR vs Kernels/sec — Noise: {noise}")
-    plt.xlabel("Kernels/second")
-    plt.ylabel("SRR [dB]")
-    plt.grid(True, linestyle='--', alpha=0.5)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(os.path.join(OUTPUT_PLOT_DIR, f"{noise}_srr.png"))
+    ax.set_title(f"SRR vs. Kernels/sec — Noise: {noise}", fontsize=16)
+    ax.set_xlabel("Kernels per Second", fontsize=14)
+    ax.set_ylabel("SRR (dB)", fontsize=14)
+    ax.tick_params(axis='both', labelsize=13)
+    ax.grid(True, linestyle='--', alpha=0.6)
+    ax.legend(loc='upper left', fontsize=13, frameon=True, title="SNR Levels", title_fontsize=13)
+
+    fig.tight_layout()
+    fig.savefig(os.path.join(OUTPUT_PLOT_DIR, f"{noise}_srr.pdf"), format='pdf')
     plt.close()
 
 print(f"✅ All SRR plots saved to: {OUTPUT_PLOT_DIR}/")
