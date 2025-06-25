@@ -12,53 +12,68 @@ def reconstruct_clean_speeches(speech_files,
                                OUTPUT_FOLDER='../reconstructed_clean_speeches',
                                STOP_TYPE='amplitude',
                                STOP_CONDITION=0.1):
-    # Load dictionary
+    """
+    Reconstruct clean speech files using learned auditory kernels.
+    Saves reconstructed WAVs, encoded waveform data, norm lists, and analysis plots.
+
+    Args:
+        speech_files: Set of clean speech file paths
+        KERNEL_PATH: Path to kernel dictionary file (.jld2)
+        OUTPUT_FOLDER: Folder to save reconstructed results
+        STOP_TYPE: Stopping criterion for matching pursuit ('amplitude' recommended)
+        STOP_CONDITION: Threshold for stopping (e.g., 0.1)
+    """
+
+    # Load the dictionary of learned kernels
     dictionary = mp.create_dictionary_from_JLD2(KERNEL_PATH)
     print(f"Loaded {len(dictionary)} kernels.")
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
     for speech_path in speech_files:
-        # Load the normalized speech
+        # Load normalized clean speech
         speech, sr = librosa.load(speech_path, sr=None)
 
-        # Get clean ID (e.g., p234_003)
+        # Extract speaker utterance ID (e.g., p234_003)
         clean_id = os.path.splitext(os.path.basename(speech_path))[0]
 
-        # Output folder: ./reconstructed_speeches/p234_003/original/
+        # Create subfolder for this reconstruction
         output_subfolder = os.path.join(OUTPUT_FOLDER, clean_id)
         os.makedirs(output_subfolder, exist_ok=True)
 
-        # Matching pursuit
+        # Matching pursuit encoding
         print(f"Running matching pursuit on clean speech: {clean_id}")
-        encoded_waveform, residual = mp.matching_pursuit(dictionary, speech, stop_type=STOP_TYPE,
+        encoded_waveform, residual = mp.matching_pursuit(dictionary, speech,
+                                                         stop_type=STOP_TYPE,
                                                          stop_condition=STOP_CONDITION)
+        # Reconstruct signal
         reconstructed, norm_list = mp.reconstruct_and_get_norm(dictionary, encoded_waveform, speech)
 
-        # Save WAV
-        reconstructed_path = os.path.join(output_subfolder, 'reconstructed.wav')
-        sf.write(reconstructed_path, reconstructed, sr)
+        # Save reconstructed audio
+        sf.write(os.path.join(output_subfolder, 'reconstructed.wav'), reconstructed, sr)
 
-        # # # Save encoded waveforms to use later!
-        # Save encoded waveform
+        # Save encoded waveform as pickle
         with open(os.path.join(output_subfolder, 'encoded_waveform.pkl'), 'wb') as f:
             pickle.dump(encoded_waveform, f)
 
-        # Save norm list
+        # Save norm list (for SRR curve)
         np.save(os.path.join(output_subfolder, 'norm_list.npy'), norm_list)
 
-        kernel_analyzer.analyze_encoded_waveform(encoded_waveform, speech, len(speech), norm_list, sr, output_subfolder,
-                                                 clean_id)
+        # Save SRR plot, histogram, and kernel usage visualization
+        kernel_analyzer.analyze_encoded_waveform(encoded_waveform, speech, len(speech), norm_list,
+                                                 sr, output_subfolder, clean_id)
 
-        # Save MSE if needed or curious
+        # Save original/reconstructed/overlay plots
+        kernel_analyzer.save_plots(speech, reconstructed, output_subfolder)
+
+        # Optional: Uncomment to also compute and save MSE
         # mse = np.mean((speech - reconstructed) ** 2)
         # with open(os.path.join(output_subfolder, 'mse.txt'), 'w') as f:
         #     f.write(f"Mean Squared Error (MSE): {mse:.6f}\n")
 
-        # Save plots
-        kernel_analyzer.save_plots(speech, reconstructed, output_subfolder)
 
+# ======= Set of clean files to process =======
 
-# List of all file IDs (both men and women, each with 2 utterances)
+# List of all speaker-utterance IDs used (100 total)
 all_speech_ids = [
     "p237_073", "p237_198", "p241_017", "p241_185", "p245_132", "p245_200", "p246_020", "p246_032",
     "p247_004", "p247_010", "p251_015", "p251_038", "p260_005", "p260_042", "p263_013", "p263_014",
@@ -76,8 +91,8 @@ all_speech_ids = [
     "p336_223", "p336_344"
 ]
 
-# Set of full file paths assuming they are in ./dataset/clean_train/
+# Create full path strings for clean dataset
 speech_files = {f"./dataset/clean_train/{sid}.wav" for sid in all_speech_ids}
 
-# --- Run it
+# === Run the reconstruction ===
 reconstruct_clean_speeches(speech_files)

@@ -4,11 +4,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def analyze_encoded_waveform(encoded_waveform, speech, signal_length, norm_list, sr=16000,
-                             output_folder='../output_analysis', clean_id=""):
-    os.makedirs(output_folder, exist_ok=True)  # Ensure directory exists
+def analyze_encoded_waveform(encoded_waveform, speech, signal_length, norm_list,
+                             sr=16000, output_folder='../output_analysis', clean_id=""):
+    """
+    Analyzes kernel usage and reconstruction quality for a single reconstructed signal.
 
-    # Bar plot
+    Args:
+        encoded_waveform: List of tuples (kernel_index, amplitude, position)
+        speech: Original degraded input signal
+        signal_length: Length of original speech signal (in samples)
+        norm_list: Residual norm after each kernel addition (used for SRR curve)
+        sr: Sampling rate (default 16 kHz)
+        output_folder: Where to save plots
+        clean_id: Base identifier for saving filenames
+    """
+
+    os.makedirs(output_folder, exist_ok=True)
+
+    # === Kernel Usage Histogram ===
     kernel_indices = [entry[0] for entry in encoded_waveform]
     kernel_counts = Counter(kernel_indices)
 
@@ -21,7 +34,7 @@ def analyze_encoded_waveform(encoded_waveform, speech, signal_length, norm_list,
     plt.savefig(os.path.join(output_folder, f'{clean_id}_bar_plot.png'))
     plt.close()
 
-    # Amplitude distribution
+    # === Amplitude Distribution of Used Kernels ===
     amps = [abs(entry[1]) for entry in encoded_waveform]
     plt.figure(figsize=(8, 3))
     plt.hist(amps, bins=50)
@@ -32,23 +45,36 @@ def analyze_encoded_waveform(encoded_waveform, speech, signal_length, norm_list,
     plt.savefig(os.path.join(output_folder, f'{clean_id}_amp_dist.png'))
     plt.close()
 
-    # SRR vs Kernels/Second
+    # === SRR Curve: Structural Fidelity over Kernels/sec ===
+    # SRR = 20 * log10(||signal|| / ||residual||)
     SRR_ld = 20 * np.log10(np.linalg.norm(speech) / norm_list)
+
+    # x-axis: kernel rate (kernels/sec) across signal duration
+    kernel_rates = np.linspace(1, len(norm_list) / signal_length * sr, len(norm_list))
+
     plt.figure(figsize=(8, 3))
-    plt.plot(np.linspace(1, len(norm_list) / signal_length * sr, len(norm_list)), SRR_ld)
-    plt.title("Number of kernels/second vs the SRR")
-    plt.legend(["Learned"])
-    plt.xlabel("kernels/second")
+    plt.plot(kernel_rates, SRR_ld)
+    plt.title("Kernels/sec vs. Signal-to-Residual Ratio (SRR)")
+    plt.xlabel("Kernels/sec")
     plt.ylabel("SRR [dB]")
-    plt.grid()
+    plt.grid(True)
+    plt.legend(["Learned"])
     plt.tight_layout()
     plt.savefig(os.path.join(output_folder, f'{clean_id}_srr_kernels.png'))
     plt.close()
 
 
 def save_plots(original_signal, reconstructed_signal, output_folder):
-    """Save separate and overlay plots for signals."""
-    # Plot original
+    """
+    Saves line plots of original, reconstructed, and overlayed waveforms.
+
+    Args:
+        original_signal: The degraded input signal
+        reconstructed_signal: Output of kernel-based reconstruction
+        output_folder: Where to save the plots
+    """
+
+    # === Original signal ===
     plt.figure(figsize=(12, 3))
     plt.plot(original_signal, label='Original Signal')
     plt.title('Original Signal')
@@ -59,7 +85,7 @@ def save_plots(original_signal, reconstructed_signal, output_folder):
     plt.savefig(os.path.join(output_folder, 'original_signal.png'))
     plt.close()
 
-    # Plot reconstructed
+    # === Reconstructed signal ===
     plt.figure(figsize=(12, 3))
     plt.plot(reconstructed_signal, label='Reconstructed Signal', color='orange')
     plt.title('Reconstructed Signal')
@@ -70,7 +96,7 @@ def save_plots(original_signal, reconstructed_signal, output_folder):
     plt.savefig(os.path.join(output_folder, 'reconstructed_signal.png'))
     plt.close()
 
-    # Overlay plot
+    # === Overlay plot ===
     plt.figure(figsize=(12, 3))
     plt.plot(original_signal, label='Original', alpha=0.7)
     plt.plot(reconstructed_signal, label='Reconstructed', alpha=0.7)

@@ -1,6 +1,6 @@
+import os
 import numpy as np
 import subprocess
-import os
 import librosa
 import soundfile as sf
 from pesq import pesq
@@ -8,23 +8,36 @@ from scipy.io import wavfile
 from pystoi.stoi import stoi
 
 
-# 1. Metric Base Class
+# ===============================
+# Abstract Base Class for Metrics
+# ===============================
+
 class MetricStrategy:
     @property
     def name(self):
+        """Name of the metric (to be overridden)."""
         raise NotImplementedError
 
     def calculate_score(self, ref_path, deg_path):
+        """Compute metric score given reference and degraded paths."""
         raise NotImplementedError
 
 
-# 2. SNR Metric
+# ===============
+# SNR Metric
+# ===============
+
 class SNRMetric(MetricStrategy):
     @property
     def name(self):
         return "SNR"
 
     def calculate_score(self, ref_path, deg_path):
+        """
+        Signal-to-Noise Ratio (SNR) in dB.
+
+        Higher values indicate better fidelity.
+        """
         sr_ref, ref = wavfile.read(ref_path)
         sr_deg, deg = wavfile.read(deg_path)
 
@@ -42,19 +55,25 @@ class SNRMetric(MetricStrategy):
         return snr
 
 
-# 3. PESQ Metric
+# ===============
+# PESQ Metric
+# ===============
+
 class PESQMetric(MetricStrategy):
     @property
     def name(self):
         return "PESQ"
 
     def calculate_score(self, ref_path, deg_path):
+        """
+        PESQ (Perceptual Evaluation of Speech Quality) score.
+        Range: [1.0 - 4.5] (higher is better).
+        """
         sr_ref, ref = wavfile.read(ref_path)
         sr_deg, deg = wavfile.read(deg_path)
 
         if sr_ref != sr_deg:
             raise ValueError("Sampling rates do not match.")
-
         if sr_ref not in [8000, 16000]:
             raise ValueError("PESQ only supports 8000 or 16000 Hz.")
 
@@ -66,25 +85,34 @@ class PESQMetric(MetricStrategy):
         return pesq(sr_ref, ref, deg, mode)
 
 
+# ===============
+# ViSQOL Metric
+# ===============
+
 class ViSQOLMetric(MetricStrategy):
     @property
     def name(self):
         return "ViSQOL"
 
     def resample_and_save(self, input_path, output_path, sr_target=48000):
+        """Resamples audio to 48kHz and saves as WAV (ViSQOL requires 48kHz)."""
         signal, sr = librosa.load(input_path, sr=None)
         if sr != sr_target:
             signal = librosa.resample(signal, orig_sr=sr, target_sr=sr_target)
         sf.write(output_path, signal, sr_target)
 
     def calculate_score(self, ref_path, deg_path):
-        # Prepare resampled files
+        """
+        ViSQOL (Virtual Speech Quality Objective Listener).
+        Outputs a MOS-LQO score (1.0–5.0).
+        Requires Docker + resampled 48kHz inputs.
+        """
         ref_resampled = ref_path.replace('.wav', '_resampled.wav')
         deg_resampled = deg_path.replace('.wav', '_resampled.wav')
         self.resample_and_save(ref_path, ref_resampled)
         self.resample_and_save(deg_path, deg_resampled)
 
-        # Docker command
+        # Compose Docker command
         command = [
             "docker", "run", "--rm",
             "-v", f"{os.getcwd()}:/data",
@@ -93,6 +121,7 @@ class ViSQOLMetric(MetricStrategy):
             "--degraded_file", f"/data/{os.path.relpath(deg_resampled)}"
         ]
         print(f"Running ViSQOL with command:\n{' '.join(command)}")
+
         try:
             result = subprocess.run(command, capture_output=True, text=True)
             print(f"[ViSQOL STDOUT for {os.path.basename(ref_path)}]:\n{result.stdout}")
@@ -102,6 +131,7 @@ class ViSQOLMetric(MetricStrategy):
                 print(f"ViSQOL Docker returned error code: {result.returncode}")
                 return None
 
+            # Parse output for MOS-LQO
             for line in result.stdout.splitlines():
                 if "MOS-LQO" in line:
                     return float(line.split(":")[-1].strip())
@@ -114,16 +144,24 @@ class ViSQOLMetric(MetricStrategy):
             return None
 
 
+# ===============
+# STOI Metric
+# ===============
+
 class STIOMetric(MetricStrategy):
     @property
     def name(self):
         return "STOI"
 
     def calculate_score(self, ref_path, deg_path):
+        """
+        Short-Time Objective Intelligibility (STOI) score.
+        Range: [0.0 - 1.0] (higher = more intelligible).
+        """
         fs, ref = wavfile.read(ref_path)
         _, deg = wavfile.read(deg_path)
 
-        # Truncate to equal length
+        # Truncate to same length
         min_len = min(len(ref), len(deg))
         ref = ref[:min_len]
         deg = deg[:min_len]

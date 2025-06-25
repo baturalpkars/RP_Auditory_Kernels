@@ -3,53 +3,52 @@ import numpy as np
 import librosa
 import soundfile as sf
 
-
 def add_additive_noise_and_save(clean, noises, sr, clean_filename, base_folder, snr_db=10):
     """
-    Adds different types of noise to the clean speech and saves the degraded speech files.
+    Adds various noise types to a clean signal at a specified SNR,
+    and saves the degraded versions to disk.
 
     Args:
-    - clean: The clean speech signal (numpy array)
-    - noises: Dictionary of noise signals
-    - sr: Sampling rate
-    - clean_filename: Name of the clean file (e.g., "p234_003")
-    - output_folder: Where to save degraded speech files
-    - snr_db: Desired SNR in dB (default: 10)
+        clean (np.ndarray): Clean speech waveform.
+        noises (dict): Dictionary mapping noise type names to noise waveforms.
+        sr (int): Sampling rate.
+        clean_filename (str): Identifier for the clean speech (e.g., 'p234_003').
+        base_folder (str): Base path to store degraded outputs.
+        snr_db (float): Desired Signal-to-Noise Ratio (in dB).
     """
     output_folder = os.path.join(base_folder, clean_filename)
     os.makedirs(output_folder, exist_ok=True)
 
     for environment_type, additive_noise in noises.items():
-        # Match lengths
+        # Repeat noise if it's shorter than the clean speech
         if len(additive_noise) < len(clean):
             repeat_factor = int(np.ceil(len(clean) / len(additive_noise)))
             additive_noise = np.tile(additive_noise, repeat_factor)
 
-        # Cut noise to exact speech length
+        # Trim to match clean length
         additive_noise = additive_noise[:len(clean)]
 
         # Add noise at desired SNR
         degraded_speech = add_noise_to_signal(clean, additive_noise, snr_db)
 
-        # Create filename
+        # Save degraded version
         output_filename = f"{clean_filename}_{environment_type}_{snr_db}dB.wav"
         output_path = os.path.join(output_folder, output_filename)
-
-        # Save the degraded speech
         sf.write(output_path, degraded_speech, sr)
         print(f"Saved: {output_path}")
 
 
 def add_noise_to_signal(clean, additive_noise, snr_db):
     """
+    Mix clean speech with additive noise at the given SNR.
 
     Args:
-        clean: The clean speech signal (numpy array)
-        additive_noise: Additive noise that we want to add
-        snr_db: Desired SNR
+        clean (np.ndarray): Clean speech signal.
+        additive_noise (np.ndarray): Noise signal.
+        snr_db (float): Desired Signal-to-Noise Ratio in dB.
 
     Returns:
-        noisy_signal: Degraded speech
+        np.ndarray: Noisy signal.
     """
     # Calculate current power
     clean_power = np.mean(clean ** 2)
@@ -59,47 +58,51 @@ def add_noise_to_signal(clean, additive_noise, snr_db):
     # SNR = 10 * log10(speech^2 / desired_noise_power^2)
     # Thus -> desired_noise_power = speech^2 / (10^(snr_db/10))
     desired_noise_power = clean_power / (10 ** (snr_db / 10))
+    scaled_noise = additive_noise * np.sqrt(desired_noise_power / noise_power)
 
-    # Scale noise to desired power
-    additive_noise = additive_noise * np.sqrt(desired_noise_power / noise_power)
-
-    # Add noise to clean signal
-    noisy_signal = clean + additive_noise
-    return noisy_signal
+    return clean + scaled_noise
 
 
 def generate_white_noise(duration=10.0, sample_rate=16000):
-    # Parameters
-    duration = duration  # seconds
-    sample_rate = sample_rate  # Hz
+    """
+    Generates white noise and saves it to disk.
 
-    # Generate white noise
+    Args:
+        duration (float): Duration in seconds.
+        sample_rate (int): Sampling rate in Hz.
+    """
     white_noise = np.random.normal(0, 1, int(sample_rate * duration))
-
-    # Save as WAV if needed
     sf.write("../dataset/noises/white_noise_1.wav", white_noise, sample_rate)
 
 
 def normalize_to_target_rms(signal, target_rms=0.1):
+    """
+    Normalize signal to a target Root Mean Square (RMS) energy.
+
+    Args:
+        signal (np.ndarray): Input signal.
+        target_rms (float): Desired RMS energy.
+
+    Returns:
+        np.ndarray: Normalized signal.
+    """
     current_rms = np.sqrt(np.mean(signal ** 2))
     if current_rms == 0:
         return signal
-    scaling_factor = target_rms / current_rms
-    return signal * scaling_factor
+    return signal * (target_rms / current_rms)
 
 
+# === Configuration ===
+
+# Noise sources to use for degradation
 noise_files = {
-    # 'airConditioner': './MS-SNSD/noise_train/AirConditioner_1.wav',
-    # 'copyMachine': './MS-SNSD/noise_train/CopyMachine_5.wav',
-    # 'munching': './MS-SNSD/noise_train/Munching_8.wav',
     'airportAnnouncement': './dataset/noises/AirportAnnouncements_7.wav',
     'babble': './dataset/noises/Babble_2.wav',
     'train_coming': './dataset/noises/TrainComing_1.wav',
     'white_noise': './dataset/noises/white_noise_1.wav',
-    # Add more types here...
 }
 
-# List of all file IDs (both men and women, each with 2 utterances)
+# 100 speech files (50 speakers x 2 utterances each) used for degradation
 all_speech_ids = [
     "p237_073", "p237_198", "p241_017", "p241_185", "p245_132", "p245_200", "p246_020", "p246_032",
     "p247_004", "p247_010", "p251_015", "p251_038", "p260_005", "p260_042", "p263_013", "p263_014",
@@ -117,31 +120,44 @@ all_speech_ids = [
     "p336_223", "p336_344"
 ]
 
-# Set of full file paths assuming they are in ./dataset/clean_train/
+# Full paths to clean speech files
 speech_files = {f"./dataset/clean_train/{sid}.wav" for sid in all_speech_ids}
 
-# Base output folder
+# Output directory for degraded samples
 base_output_folder = './degraded_speeches'
 
-# Process each clean speech
+# === Processing Loop ===
+
 for speech_path in speech_files:
     speech, sr = librosa.load(speech_path, sr=None)
-    speech = normalize_to_target_rms(speech, target_rms=0.1)  # Normalize the clean speech
+    speech = normalize_to_target_rms(speech, target_rms=0.1)
 
-    # Extract clean file name (e.g., p234_003)
     clean_filename = os.path.splitext(os.path.basename(speech_path))[0]
 
+    # Save normalized clean version separately
     clean_save_folder = './clean_speeches'
     os.makedirs(clean_save_folder, exist_ok=True)
     clean_output_path = os.path.join(clean_save_folder, f'{clean_filename}.wav')
     sf.write(clean_output_path, speech, sr)
 
-    # Load and store all noise samples once per speech
+    # Load all noise samples for this speech file
     loaded_noises = {}
     for noise_type, filepath in noise_files.items():
         noise, _ = librosa.load(filepath, sr=sr)
         loaded_noises[noise_type] = noise
 
-    # Apply for multiple SNR levels
+    # Generate and save degraded versions at multiple SNR levels
     for snr in [-5, 0, 5, 10]:
-        add_additive_noise_and_save(speech, loaded_noises, sr, clean_filename, base_output_folder, snr_db=snr)
+        add_additive_noise_and_save(
+            clean=speech,
+            noises=loaded_noises,
+            sr=sr,
+            clean_filename=clean_filename,
+            base_folder=base_output_folder,
+            snr_db=snr
+        )
+
+# Generate white noise sample if it doesn't exist
+# if not os.path.exists('./dataset/noises/white_noise_1.wav'):
+#     generate_white_noise(duration=10.0, sample_rate=16000)
+#     print("Generated white noise sample.")
