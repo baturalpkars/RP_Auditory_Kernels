@@ -1,11 +1,11 @@
-# RP_Auditory_Kernels
+# Research Project: Auditory Kernels for Representing Degraded Speech
 
 This repository supports the Bachelor Research Project (https://github.com/TU-Delft-CSE/Research-Project?tab=readme-ov-file) titled  
 **"Auditory Kernels for Representing Degraded Speech"** at TU Delft (2025).
 
 It investigates how biologically-inspired auditory kernels—learned from clean speech—perform under realistic degradations, aiming to evaluate kernel **robustness**, **selectivity**, and **denoising potential**.
 
-## 🎧 Project Overview
+## Project Overview
 
 - **Goal:** Use sparse coding (Matching Pursuit) with auditory kernels to reconstruct degraded speech and evaluate reconstruction quality.
 - **Approach:**  
@@ -19,7 +19,7 @@ It investigates how biologically-inspired auditory kernels—learned from clean 
   - **ViSQOL** – perceptual similarity  
   - **SRR** – structural fidelity (signal-to-residual ratio)
 
-## 🧠 Key Components
+## Key Components
 
 > All Python scripts are designed to run independently.  
 > Each file is well-commented and self-explanatory.
@@ -37,7 +37,7 @@ It investigates how biologically-inspired auditory kernels—learned from clean 
 | `plot_*.py`                          | All result plotting scripts (PESQ/STOI subplots, SRR curves, diff histograms) |
 | `results/`                           | Stores metric outputs and visualizations                                   |
 
-## 🛠️ Setup
+## Setup
 
 ### 1. Requirements
 
@@ -69,7 +69,7 @@ No local installation of ViSQOL is needed. The `ViSQOLMetric` class handles ever
 
 ---
 
-## 🔁 Full Pipeline
+## Full Pipeline
 
 ### 1. Generate Degraded Speech
 
@@ -130,7 +130,7 @@ All figures saved under `results/plots`.
 
 ---
 
-## ✅ Reproducibility
+## Reproducibility
 
 All code is:
 
@@ -141,7 +141,7 @@ All code is:
 
 ---
 
-## 👨‍🔬 Responsible Research
+## Responsible Research
 
 - All data is from the public **MS-SNSD** corpus (consented, anonymized).
 - Noise is synthetic; no biometric/speaker recognition used.
@@ -149,11 +149,10 @@ All code is:
 
 ---
 
-## 📬 Contact
+## Contact
 
 For questions or ideas:
 
 **Baturalp Karslıoğlu**  
 TU Delft – Bachelor Research Project  
-📧 b.karslioglu@student.tudelft.nl  
-🔗 https://github.com/baturalpkars/RP_Auditory_Kernels
+email: b.karslioglu@student.tudelft.nl
