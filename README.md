@@ -143,7 +143,7 @@ All code is:
 
 ## Responsible Research
 
-- All data is from the public **MS-SNSD** corpus (consented, anonymized).
+- All data is from the public **MS-SNSD** (https://github.com/microsoft/MS-SNSD) corpus (consented, anonymized).
 - Noise is synthetic; no biometric/speaker recognition used.
 - Code is open-source and available at [github.com/baturalpkars/RP_Auditory_Kernels](https://github.com/baturalpkars/RP_Auditory_Kernels)
 
